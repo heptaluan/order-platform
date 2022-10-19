@@ -4,6 +4,7 @@
       <template #toolbar>
         <a-button type="primary" @click="handleExportCustomerInfo">导出客户信息</a-button>
         <a-button type="primary" @click="handleExportQuestion">导出问卷</a-button>
+        <a-button type="primary" @click="handleExportInformedConsentsZip">导出同意书</a-button>
       </template>
       <template #action="{ record }">
         <TableAction
@@ -17,13 +18,13 @@
             // {
             //   label: '编辑信息',
             //   icon: 'clarity:note-edit-line',
-            //   tooltip: '编辑问卷',
+            //   tooltip: '编辑信息',
             //   onClick: handleEdit.bind(null, record),
             // },
             {
               label: '下载同意书',
               icon: 'akar-icons:link-chain',
-              tooltip: '查看问卷详情',
+              tooltip: '下载同意书',
               onClick: handleDownload.bind(null, record),
             },
           ]"
@@ -44,12 +45,16 @@
   import { getQuestionnaireList, exportQuestionnaireList } from '/@/api/base/question';
   import { export_json_to_excel } from '/@/utils/xlsx/index';
   import { PageWrapper } from '/@/components/Page';
-
   import * as XLSX from 'xlsx';
+  import axios from 'axios';
+  import { getToken } from '/@/utils/auth';
+  import { useGlobSetting } from '/@/hooks/setting';
+
   import { useModal } from '/@/components/Modal';
   import QuestionListDetailModal from './QuestionListDetailModal.vue';
   import QuestionListEditModal from './QuestionListEditModal.vue';
   import { questionList, questionListFormSchema } from './Question.data';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   export default defineComponent({
     name: 'AccountManagement',
@@ -65,7 +70,8 @@
         useModal();
       const [registerQuestionListEditModal, { openModal: openQuestionListEditModal }] = useModal();
       const searchInfo = reactive<Recordable>({});
-      const [registerTable] = useTable({
+      const { createMessage } = useMessage();
+      const [registerTable, { getForm }] = useTable({
         title: '问卷列表',
         api: getQuestionnaireList,
         immediate: false,
@@ -110,7 +116,11 @@
 
       // 下载同意书
       function handleDownload(record: Recordable) {
-        console.log(record);
+        if (record.informedConsent) {
+          window.open(record.informedConsent);
+        } else {
+          createMessage.warning(`所选问卷暂无同意书下载`);
+        }
       }
 
       async function handleSuccess({ isUpdate, values }) {
@@ -119,9 +129,10 @@
 
       // 导出客户信息
       async function handleExportCustomerInfo() {
+        const templateId = getForm().getFieldsValue().templateId;
         const res = await getQuestionnaireList({
           page: 1,
-          templateId: '1579294517472755713',
+          templateId,
           size: 999999,
         });
         if (res && (res as any).list) {
@@ -131,8 +142,9 @@
 
       // 导出问卷
       async function handleExportQuestion() {
+        const templateId = getForm().getFieldsValue().templateId;
         const res = await exportQuestionnaireList({
-          templateId: '1579294517472755713',
+          templateId,
         });
         if (res) {
           const time = new Date();
@@ -154,6 +166,48 @@
           };
           XLSX.writeFile(workBook, `${fileName}.xls`);
         }
+      }
+
+      // 导出同意书
+      async function handleExportInformedConsentsZip() {
+        const templateId = getForm().getFieldsValue().templateId;
+        const token = getToken();
+        const globSetting = useGlobSetting();
+        const url = '/tailai-cloud-questionnaire/questionnaire-customer/exportInformedConsentsZip';
+        (axios as any).defaults.headers.common['X-Access-Token'] = token;
+        const res = await axios.post(
+          globSetting.apiUrl + url,
+          { templateId },
+          {
+            responseType: 'arraybuffer',
+          },
+        );
+        let fileName = '';
+        if (res.headers && res.headers['content-disposition']) {
+          fileName = decodeURI(res.headers['content-disposition'].split('FileName=')[1]);
+        } else {
+          fileName = '知情同意书1111';
+        }
+        download(res.data, 'application/zip;charset-UTF-8', fileName + '.zip');
+      }
+
+      /**
+       * @param res 流数据
+       * @param type 'application/pdf;charset=UTF-8' 表示下载文档为 pdf，如果是 word 则设置为 msword，excel 为 excel，zip 为 zip
+       */
+      function download(res, type, filename) {
+        const blob = new Blob([res], {
+          type: type,
+        });
+        const a = document.createElement('a');
+        const URL = window.URL || window.webkitURL;
+        const herf = URL.createObjectURL(blob);
+        a.href = herf;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(herf);
       }
 
       function exportExcel(rows, fileNamePrefix) {
@@ -214,6 +268,7 @@
         handleSuccess,
         handleExportCustomerInfo,
         handleExportQuestion,
+        handleExportInformedConsentsZip,
       };
     },
   });

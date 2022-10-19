@@ -1,7 +1,7 @@
 import { getCodeType, getAllEnabled } from '/@/api/base/question';
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
-import { getAllPlace } from '/@/api/base/base';
+// import { getAllPlace } from '/@/api/base/base';
 import dayjs from 'dayjs';
 
 // 问卷模板
@@ -179,7 +179,7 @@ export const questionList: BasicColumn[] = [
 // 问题列表搜索
 export const questionListFormSchema: FormSchema[] = [
   {
-    field: 'itemTitle',
+    field: 'nameCn',
     label: '姓名',
     component: 'Input',
     componentProps: {
@@ -191,10 +191,10 @@ export const questionListFormSchema: FormSchema[] = [
     },
   },
   {
-    field: 'rangeDate',
+    field: 'createTime',
     label: `下单时间`,
     component: 'RangePicker',
-    defaultValue: [new Date(), new Date()],
+    // defaultValue: [new Date(), new Date()],
     componentProps: {
       format: 'YYYY-MM-DD',
       allowClear: true,
@@ -204,26 +204,26 @@ export const questionListFormSchema: FormSchema[] = [
       xxl: 4,
     },
   },
-  {
-    field: `market`,
-    label: `检测点`,
-    component: 'ApiCascaderMarket',
-    componentProps: {
-      labelField: 'marketName',
-      valueField: 'id',
-      childrenField: 'registerMarketPlaceVOList',
-      api: getAllPlace,
-      isLeaf: (item) => {
-        return !item.registerMarketPlaceVOList;
-      },
-      showSearch: true,
-      changeOnSelect: true,
-    },
-    colProps: {
-      xl: 8,
-      xxl: 4,
-    },
-  },
+  // {
+  //   field: `market`,
+  //   label: `检测点`,
+  //   component: 'ApiCascaderMarket',
+  //   componentProps: {
+  //     labelField: 'marketName',
+  //     valueField: 'id',
+  //     childrenField: 'registerMarketPlaceVOList',
+  //     api: getAllPlace,
+  //     isLeaf: (item) => {
+  //       return !item.registerMarketPlaceVOList;
+  //     },
+  //     showSearch: true,
+  //     changeOnSelect: true,
+  //   },
+  //   colProps: {
+  //     xl: 8,
+  //     xxl: 4,
+  //   },
+  // },
   {
     field: 'templateId',
     label: '问卷模板',
@@ -593,13 +593,13 @@ export const addQuestionDetailFormSchema: FormSchema[] = [
     },
     required: true,
   },
-  {
-    field: 'questionRemark',
-    label: '备注',
-    component: 'InputTextArea',
-    componentProps: {
-      rows: 4,
-      placeholder: '请输入备注',
-    },
-  },
+  // {
+  //   field: 'questionRemark',
+  //   label: '备注',
+  //   component: 'InputTextArea',
+  //   componentProps: {
+  //     rows: 4,
+  //     placeholder: '请输入备注',
+  //   },
+  // },
 ];
