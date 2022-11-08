@@ -1,5 +1,11 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" :title="getTitle" @ok="handleSubmit" :ok-button-props="{ disabled: !canEdit }">
+  <BasicModal
+    v-bind="$attrs"
+    @register="registerModal"
+    :title="getTitle"
+    @ok="handleSubmit"
+    :ok-button-props="{ disabled: !canEdit }"
+  >
     <BasicForm @register="registerForm" />
   </BasicModal>
 </template>
@@ -17,6 +23,7 @@
       const isUpdate = ref(true);
       const rowId = ref('');
       const canEdit = ref(true);
+      const isSingle = ref(true);
 
       const [registerForm, { setFieldsValue, resetFields, validate, updateSchema }] = useForm({
         labelWidth: 100,
@@ -33,6 +40,42 @@
         setModalProps({ confirmLoading: false });
         isUpdate.value = !!data?.isUpdate;
         canEdit.value = !!data?.canEdit;
+        isSingle.value = !!data?.isSingle;
+
+        updateSchema([
+          {
+            field: 'itemTitle',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'itemDescribe',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'itemValue',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'memo',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'hasRemark',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'isExclusive',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'orderNum',
+            dynamicDisabled: false,
+          },
+          {
+            field: 'questionRemark',
+            dynamicDisabled: false,
+          },
+        ]);
 
         if (unref(isUpdate)) {
           rowId.value = data.record.id;
@@ -40,6 +83,7 @@
           setFieldsValue({
             ...data.record,
           });
+
           updateSchema([
             {
               field: 'itemTitle',
@@ -51,6 +95,10 @@
             },
             {
               field: 'itemValue',
+              dynamicDisabled: !unref(canEdit),
+            },
+            {
+              field: 'memo',
               dynamicDisabled: !unref(canEdit),
             },
             {
@@ -68,10 +116,21 @@
             {
               field: 'questionRemark',
               dynamicDisabled: !unref(canEdit),
-            }
-          ])
+            },
+          ]);
         } else {
           rowId.value = '';
+          if (isSingle.value) {
+            setFieldsValue({
+              isExclusive: '01',
+            });
+            updateSchema([
+              {
+                field: 'isExclusive',
+                dynamicDisabled: true,
+              },
+            ]);
+          }
         }
       });
 

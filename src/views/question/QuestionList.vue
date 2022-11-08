@@ -42,7 +42,11 @@
   import { defineComponent, reactive, onMounted } from 'vue';
 
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getQuestionnaireList, exportQuestionnaireList } from '/@/api/base/question';
+  import {
+    getQuestionnaireList,
+    exportQuestionnaireList,
+    getAllEnabled,
+  } from '/@/api/base/question';
   import { export_json_to_excel } from '/@/utils/xlsx/index';
   import { PageWrapper } from '/@/components/Page';
   import * as XLSX from 'xlsx';
@@ -95,6 +99,18 @@
           dataIndex: 'action',
           slots: { customRender: 'action' },
         },
+        beforeFetch: async (val) => {
+          if (!val.templateId) {
+            const res = await getAllEnabled();
+            val.templateId = res[0].id;
+            getForm().setFieldsValue({
+              templateId: res[0].id,
+            });
+            return val;
+          } else {
+            return val;
+          }
+        },
       });
 
       // 查看问卷
@@ -129,10 +145,10 @@
 
       // 导出客户信息
       async function handleExportCustomerInfo() {
-        const templateId = getForm().getFieldsValue().templateId;
+        const params = getForm().getFieldsValue();
         const res = await getQuestionnaireList({
+          ...params,
           page: 1,
-          templateId,
           size: 999999,
         });
         if (res && (res as any).list) {
@@ -142,9 +158,11 @@
 
       // 导出问卷
       async function handleExportQuestion() {
-        const templateId = getForm().getFieldsValue().templateId;
+        const params = getForm().getFieldsValue();
         const res = await exportQuestionnaireList({
-          templateId,
+          ...params,
+          page: 1,
+          size: 999999,
         });
         if (res) {
           const time = new Date();
@@ -170,14 +188,14 @@
 
       // 导出同意书
       async function handleExportInformedConsentsZip() {
-        const templateId = getForm().getFieldsValue().templateId;
+        const params = getForm().getFieldsValue();
         const token = getToken();
         const globSetting = useGlobSetting();
         const url = '/tailai-cloud-questionnaire/questionnaire-customer/exportInformedConsentsZip';
         (axios as any).defaults.headers.common['X-Access-Token'] = token;
         const res = await axios.post(
           globSetting.apiUrl + url,
-          { templateId },
+          { ...params, page: 1, size: 999999 },
           {
             responseType: 'arraybuffer',
           },
@@ -186,7 +204,7 @@
         if (res.headers && res.headers['content-disposition']) {
           fileName = decodeURI(res.headers['content-disposition'].split('FileName=')[1]);
         } else {
-          fileName = '知情同意书1111';
+          fileName = '知情同意书';
         }
         download(res.data, 'application/zip;charset-UTF-8', fileName + '.zip');
       }

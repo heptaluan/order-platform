@@ -61,6 +61,15 @@ export const templateFormSchema: FormSchema[] = [
       placeholder: '请输入问卷标题',
     },
   },
+  {
+    field: 'templateCode',
+    label: '问卷编码',
+    component: 'Input',
+    colProps: { span: 6 },
+    componentProps: {
+      placeholder: '请输入问卷编码',
+    },
+  },
 ];
 
 // 新增问题模板弹窗
@@ -191,13 +200,23 @@ export const questionListFormSchema: FormSchema[] = [
     },
   },
   {
-    field: 'createTime',
-    label: `下单时间`,
+    field: '',
+    label: `提交时间`,
     component: 'RangePicker',
     // defaultValue: [new Date(), new Date()],
-    componentProps: {
-      format: 'YYYY-MM-DD',
-      allowClear: true,
+    componentProps: ({ tableAction, formModel }) => {
+      return {
+        format: 'YYYY-MM-DD',
+        valueFormat: 'YYYY-MM-DD',
+        allowClear: false,
+        onChange: (value) => {
+          formModel.createTime = [];
+          formModel.createTimeBegin = value[0];
+          formModel.createTimeEnd = value[1];
+          const { reload } = tableAction;
+          reload();
+        },
+      };
     },
     colProps: {
       xl: 8,
@@ -234,12 +253,12 @@ export const questionListFormSchema: FormSchema[] = [
         labelField: 'questionnaireTitle',
         valueField: 'id',
         isRole: true,
-        placeholder: '请选择问题类型',
+        placeholder: '请选择问卷模板',
         onOptionsChange: (res) => {
           const { updateSchema } = formActionType;
           const { reload } = tableAction;
           updateSchema({
-            field: 'questionnaireTitle',
+            field: 'templateId',
             defaultValue: res[0].questionnaireTitle,
           });
           formModel.templateId = res[0].value;
@@ -251,7 +270,6 @@ export const questionListFormSchema: FormSchema[] = [
       xl: 6,
       xxl: 4,
     },
-    required: true,
   },
 ];
 
@@ -468,11 +486,16 @@ export const questionDetailColumns: BasicColumn[] = [
     dataIndex: 'orderNum',
     width: 120,
   },
-  // {
-  //   title: '备注',
-  //   dataIndex: 'questionRemark',
-  //   width: 120,
-  // },
+  {
+    title: '选项值',
+    dataIndex: 'itemValue',
+    width: 120,
+  },
+  {
+    title: '选项说明',
+    dataIndex: 'memo',
+    width: 120,
+  },
   // {
   //   title: '创建时间',
   //   dataIndex: 'createTime',
@@ -481,14 +504,14 @@ export const questionDetailColumns: BasicColumn[] = [
   //     return dayjs(text).format('YYYY-MM-DD');
   //   },
   // },
-  {
-    title: '更新时间',
-    dataIndex: 'updateTime',
-    width: 180,
-    format: (text) => {
-      return text ? dayjs(text).format('YYYY-MM-DD') : '-';
-    },
-  },
+  // {
+  //   title: '更新时间',
+  //   dataIndex: 'updateTime',
+  //   width: 180,
+  //   format: (text) => {
+  //     return text ? dayjs(text).format('YYYY-MM-DD') : '-';
+  //   },
+  // },
 ];
 
 // 问题选项搜索
@@ -546,6 +569,15 @@ export const addQuestionDetailFormSchema: FormSchema[] = [
     ],
     componentProps: {
       placeholder: '请输入选项值',
+    },
+  },
+  {
+    field: 'memo',
+    label: '选项说明',
+    component: 'InputTextArea',
+    componentProps: {
+      rows: 2,
+      placeholder: '请输入选项说明',
     },
   },
   {

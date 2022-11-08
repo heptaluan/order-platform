@@ -1,14 +1,16 @@
 <template>
   <div class="h-full flex p-4 edit-question">
-    <div class="flex flex-col w-2/3">
+    <div class="flex flex-col w-4/7" style="margin-right: 20px">
+      <!-- @row-click="handleRowClick" -->
       <BasicTable
         @register="registerQuestionTable"
         :searchInfo="searchInfo"
-        @row-click="handleRowClick"
         @selection-change="handleColumnsChange"
       >
         <template #toolbar>
-          <a-button type="primary" @click="handleCreateQuestion" v-if="status==='99'">新增问题</a-button>
+          <a-button type="primary" @click="handleCreateQuestion" v-if="status === '99'"
+            >新增问题</a-button
+          >
         </template>
         <template #action="{ record }">
           <TableAction
@@ -28,17 +30,19 @@
                   title: '是否确认删除',
                   confirm: handleDeleteQuestion.bind(null, record),
                 },
-                ifShow: status === '99'
+                ifShow: status === '99',
               },
             ]"
           />
         </template>
       </BasicTable>
     </div>
-    <div class="flex flex-col w-1/3">
+    <div class="flex flex-col w-3/7">
       <BasicTable @register="registerQuestionDetailTable" :searchInfo="searchInfo">
         <template #toolbar>
-          <a-button type="primary" @click="handleCreateQuestionDetail" v-if="status==='99'">新增问题选项</a-button>
+          <a-button type="primary" @click="handleCreateQuestionDetail" v-if="status === '99'"
+            >新增问题选项</a-button
+          >
         </template>
         <template #action="{ record }">
           <TableAction
@@ -58,7 +62,7 @@
                   title: '是否确认删除',
                   confirm: handleDeleteQuestionDetail.bind(null, record),
                 },
-                ifShow: status === '99'
+                ifShow: status === '99',
               },
             ]"
           />
@@ -120,13 +124,12 @@
         },
         rowKey: 'id',
         columns: questionColumns,
-
         formConfig: {
           labelWidth: 120,
           schemas: questionFormSchema,
           autoSubmitOnEnter: true,
         },
-        useSearchForm: true,
+        useSearchForm: false,
         showTableSetting: true,
         bordered: true,
         pagination: { pageSize: 10 },
@@ -156,7 +159,7 @@
           schemas: questionDetailFormSchema,
           autoSubmitOnEnter: true,
         },
-        useSearchForm: true,
+        useSearchForm: false,
         showTableSetting: true,
         bordered: true,
         pagination: { pageSize: 10 },
@@ -173,16 +176,16 @@
       });
 
       // 问题列表点击事件
-      const handleRowClick = (record: Recordable) => {
-        const rows = getSelectRows();
-        if (rows.length > 0) {
-          questionId.value = record.id;
-          reloadQuestionDetail();
-        } else {
-          questionId.value = '';
-          reloadQuestionDetail();
-        }
-      };
+      // const handleRowClick = (record: Recordable) => {
+      // const rows = getSelectRows();
+      // if (rows.length > 0) {
+      //   questionId.value = record.id;
+      //   reloadQuestionDetail();
+      // } else {
+      //   questionId.value = '';
+      //   reloadQuestionDetail();
+      // }
+      // };
 
       const handleColumnsChange = (record: Recordable) => {
         const rows = getSelectRows();
@@ -247,12 +250,14 @@
 
       // 新增问题选项弹窗
       const handleCreateQuestionDetail = () => {
+        const rows = getSelectRows();
         if (!questionId.value) {
           createMessage.warning(`请先选择需要查看的问题`);
         } else {
           openAddQuestionDetailModal(true, {
             canEdit: status.value === '99',
             isUpdate: false,
+            isSingle: rows[0].questionTypeName === '单选题' ? true : false,
           });
         }
       };
@@ -295,19 +300,19 @@
           await reloadQuestionDetail();
         }
       }
-      async function initPage () {
+      async function initPage() {
         const res = await getTemplateFindById({
           id: id.value,
         });
         if (res) {
-          status.value = res.status
-          await reload()
+          status.value = res.status;
+          await reload();
         }
       }
-      initPage()
+      initPage();
       return {
         searchInfo,
-        handleRowClick,
+        // handleRowClick,
         handleColumnsChange,
         registerQuestionTable,
         registerQuestionDetailTable,
@@ -321,7 +326,7 @@
         handleDeleteQuestionDetail,
         handleAddQuestionSuccess,
         handleAddQuestionDetailSuccess,
-        status
+        status,
       };
     },
   });

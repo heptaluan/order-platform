@@ -9,6 +9,7 @@
     <ul class="list" v-if="showDetail">
       <li v-for="(item, index) of list" :key="index">
         <div>
+          <span>{{ index + 1 }}、</span>
           <span class="questionTitle">{{ item['questionTitle'] }}</span>
           <span class="itemTitle">{{ item['itemTitle'] }}</span>
         </div>
@@ -72,9 +73,6 @@
       color: rgb(81, 90, 110);
       .questionTitle {
         font-weight: bold;
-      }
-
-      .itemTitle {
       }
     }
   }
