@@ -1,25 +1,45 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" :title="getTitle" @ok="handleSubmit" width="1024px">
+  <BasicModal
+    v-bind="$attrs"
+    @register="registerModal"
+    :title="getTitle"
+    @ok="handleSubmit"
+    width="1024px"
+  >
     <BasicForm @register="registerForm">
       <template #statementSlot="{ model, field }">
-        <Tinymce v-model:value="model[field]" width="100%" :showImageUpload="false" @update:modelValue="handleUpdateStatement" :disabled="!canEdit" :options="{ readonly: !canEdit}"/>
+        <Tinymce
+          v-model:value="model[field]"
+          width="100%"
+          :showImageUpload="false"
+          @update:modelValue="handleUpdateStatement"
+          :disabled="!canEdit"
+          :options="{ readonly: !canEdit }"
+        />
       </template>
       <template #informedConsentSlot="{ model, field }">
-        <Tinymce v-model:value="model[field]"  width="100%" :showImageUpload="false" @update:modelValue="handleUpdateInformedConsent" :disabled="!canEdit" :options="{ readonly: !canEdit}"/>
+        <Tinymce
+          v-model:value="model[field]"
+          width="100%"
+          :showImageUpload="false"
+          @update:modelValue="handleUpdateInformedConsent"
+          :disabled="!canEdit"
+          :options="{ readonly: !canEdit }"
+        />
       </template>
     </BasicForm>
   </BasicModal>
 </template>
 <script lang="ts">
-import {defineComponent, ref, computed, unref } from 'vue';
-import { BasicModal, useModalInner } from '/@/components/Modal';
-import {BasicForm, useForm} from '/@/components/Form/index';
-import {Tinymce} from "/@/components/Tinymce";
-import { addTemplateFormSchema } from "/@/views/question/Question.data";
+  import { defineComponent, ref, computed, unref } from 'vue';
+  import { BasicModal, useModalInner } from '/@/components/Modal';
+  import { BasicForm, useForm } from '/@/components/Form/index';
+  import { Tinymce } from '/@/components/Tinymce';
+  import { addTemplateFormSchema } from '/@/views/question/Question.data';
 
   export default defineComponent({
     name: 'AddTemplateModal',
-    components: { BasicModal, BasicForm, Tinymce},
+    components: { BasicModal, BasicForm, Tinymce },
     emits: ['success', 'register'],
     setup(_, { emit }) {
       const isUpdate = ref(true);
@@ -40,7 +60,11 @@ import { addTemplateFormSchema } from "/@/views/question/Question.data";
         resetFields();
         setModalProps({ confirmLoading: false });
         isUpdate.value = !!data?.isUpdate;
-        canEdit.value = unref(isUpdate) ? (data.record.status ? data.record.status === '99' : false) : true
+        canEdit.value = unref(isUpdate)
+          ? data.record.status
+            ? data.record.status === '99'
+            : false
+          : true;
 
         if (unref(isUpdate)) {
           rowId.value = data.record.id;
@@ -64,7 +88,7 @@ import { addTemplateFormSchema } from "/@/views/question/Question.data";
             field: 'questionnaireRemark',
             dynamicDisabled: !unref(canEdit),
           },
-        ])
+        ]);
       });
 
       const getTitle = computed(() => (!unref(isUpdate) ? '新增问卷' : '编辑问卷'));
@@ -81,15 +105,23 @@ import { addTemplateFormSchema } from "/@/views/question/Question.data";
       }
       function handleUpdateStatement(content) {
         setFieldsValue({
-          statement: content
-        })
+          statement: content,
+        });
       }
       function handleUpdateInformedConsent(content) {
         setFieldsValue({
-          informedConsent: content
-        })
+          informedConsent: content,
+        });
       }
-      return { registerModal, registerForm, getTitle, handleSubmit, canEdit, handleUpdateStatement, handleUpdateInformedConsent };
+      return {
+        registerModal,
+        registerForm,
+        getTitle,
+        handleSubmit,
+        canEdit,
+        handleUpdateStatement,
+        handleUpdateInformedConsent,
+      };
     },
   });
 </script>

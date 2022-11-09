@@ -1,5 +1,11 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" :title="getTitle" @ok="handleSubmit" :ok-button-props="{ disabled: !canEdit }">
+  <BasicModal
+    v-bind="$attrs"
+    @register="registerModal"
+    :title="getTitle"
+    @ok="handleSubmit"
+    :ok-button-props="{ disabled: !canEdit }"
+  >
     <BasicForm @register="registerForm" />
   </BasicModal>
 </template>
@@ -60,8 +66,8 @@
             {
               field: 'questionRemark',
               dynamicDisabled: !unref(canEdit),
-            }
-          ])
+            },
+          ]);
         } else {
           rowId.value = '';
         }

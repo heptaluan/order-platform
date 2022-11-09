@@ -22,7 +22,7 @@
                 title: '是否确认启用该问卷',
                 confirm: handleEnable.bind(null, record),
               },
-              ifShow: record.status === '99'
+              ifShow: record.status === '99',
             },
             {
               label: '问卷详情',
@@ -40,7 +40,9 @@
         />
       </template>
       <template #status="{ text }">
-        <tag :color="text === '01' ? 'green' : text === '99' ? 'cyan': 'grey'">{{text === '01' ? '启用' :  text === '99' ? '未启用': '停用'}}</tag>
+        <tag :color="text === '01' ? 'green' : text === '99' ? 'cyan' : 'grey'">{{
+          text === '01' ? '启用' : text === '99' ? '未启用' : '停用'
+        }}</tag>
       </template>
     </BasicTable>
     <AddTemplateModal @register="registerModal" @success="handleSuccess" />
@@ -54,7 +56,7 @@
     getQuestionTemplate,
     saveQuestionTemplate,
     enableQuestionTemplate,
-    addTemplateVersion
+    addTemplateVersion,
   } from '/@/api/base/question';
 
   import { PageWrapper } from '/@/components/Page';
@@ -117,7 +119,7 @@
       const handleShowTemplate = (record: Recordable) => {
         go(`/question/questionTemplateEdit?id=${record.id}`);
       };
-      async function handleNewVersion (record: Recordable) {
+      async function handleNewVersion(record: Recordable) {
         const res = await addTemplateVersion({
           id: record.id,
         });
@@ -164,7 +166,7 @@
         handleShowTemplate,
         handleEnable,
         handleSuccess,
-        handleNewVersion
+        handleNewVersion,
       };
     },
   });
